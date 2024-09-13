@@ -10,7 +10,7 @@ import requests
 import cv2
 
 
-url = 'https://dev263135.service-now.com/x_146833_genaico_0.CatImage3.jpg'
+url = 'https://dev263135.service-now.com/x_146833_redhatpre.brakesetpads.jpg'
 testimage = '/opt/app-root/src/metropolis-nim-workflows/workflows/vlm_alerts/aniltestimage.jpg'
 
 response = requests.get(url)

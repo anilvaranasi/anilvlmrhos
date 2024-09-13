@@ -7,7 +7,7 @@ import matplotlib.patches as patches
 
 import numpy as np
 import requests 
-import cv2
+#import cv2
 
 
 url = 'https://dev263135.service-now.com/x_146833_redhatpre.brakesetpads.jpg'
@@ -78,9 +78,9 @@ class VLM:
             image = Image.open(image).convert("RGB")
         elif isinstance(image, Image.Image): #pil image 
             image = image.convert("RGB")
-        elif isinstance(image, np.ndarray): #cv2 / np array image 
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(image)
+       # elif isinstance(image, np.ndarray): #cv2 / np array image 
+        #    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+         #   image = Image.fromarray(image)
         else:
             print(f"Unsupported image input: {type(image)}")
             return None 

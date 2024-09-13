@@ -8,3 +8,4 @@ gradio
 streamlit
 matplotlib 
 websockets
+gunicorn

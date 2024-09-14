@@ -7,19 +7,41 @@ import matplotlib.patches as patches
 
 import numpy as np
 import requests 
-#import cv2
+import cv2
 
 
 url = 'https://dev263135.service-now.com/x_146833_redhatpre.brakesetpads.jpg'
 testimage = 'aniltestimage.jpg'
+test_video = 'test_video.mp4'
 
 response = requests.get(url)
 if response.status_code == 200:
     with open(testimage, 'wb') as file:
         file.write(response.content)
-    print('File downloaded successfully')
+    print('Image File downloaded successfully')
 else:
     print('Failed to download file')
+
+    #download video
+    # Set the request parameters
+url = 'https://dev263135.service-now.com/api/now/attachment/05f1f936c36c921049521d12b40131f4/file'
+test_video = 'test_video.mp4'
+# Eg. User name="admin", Password="admin" for this code sample.
+user = 'admin'
+pwd = 'lj1-R$9nHzYP'
+
+# Set proper headers
+headers = {"Content-Type":"video/mp4","Accept":"*/*"}
+
+# Do the HTTP request
+response = requests.get(url, auth=(user, pwd), headers=headers )
+if response.status_code == 200:
+    with open(test_video, 'wb') as file:
+        file.write(response.content)
+    print('Video File downloaded successfully')
+else:
+    print('Failed to download file')
+
 
 api_key = "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" #FIX ME 
 
@@ -78,9 +100,9 @@ class VLM:
             image = Image.open(image).convert("RGB")
         elif isinstance(image, Image.Image): #pil image 
             image = image.convert("RGB")
-       # elif isinstance(image, np.ndarray): #cv2 / np array image 
-        #    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-         #   image = Image.fromarray(image)
+        elif isinstance(image, np.ndarray): #cv2 / np array image 
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(image)
         else:
             print(f"Unsupported image input: {type(image)}")
             return None 
@@ -125,14 +147,56 @@ image_path = testimage #CHANGE ME
 #NEVA
 start_time = time()
 response, _ = neva(custom_prompt, image_path)
-print(f"Neva Response: {response}")
-print(f"Neva Time: {time() - start_time} \n")
+#print(f"Neva Response: {response}")
+#print(f"Neva Time: {time() - start_time} \n")
 
+#load video and run vlm in a loop with prompt 
+vlm = VLM(neva_api_url, api_key)
+video_path = test_video 
+#prompt  = "Is there a fire in the image? Answer yes or no."
+prompt  = "This is video of a car you are a agent that helps in reviewing the video and report scratches or body damage"
+
+cap = cv2.VideoCapture(video_path) #open video file with openCV
+
+count = 0
+while True:
+    ret, frame = cap.read()
+    if frame is None:
+        continue 
+    #reply += vlm(prompt, frame)
+    responseVideo, _ = vlm(prompt, frame)
+    #response = response.json()
+    #reply += response["choices"][0]["message"]["content"]
+    count += 1
+    #if count > 10:
+    if count > 2:
+        break 
+    #print(responseVideo)
 
 def predict(single_test_text):
     image_path = testimage
-    response, _ = neva(single_test_text,image_path)
-    single_predicted_label = response
+    responseImage, _ = neva(single_test_text,image_path)
+    single_predicted_label = responseImage
+    vlm = VLM(neva_api_url, api_key)
+    video_path = test_video 
+    #prompt  = "Is there a fire in the image? Answer yes or no."
+    prompt  = "This is video of a car you are a agent that helps in reviewing the video and report scratches or body damage"
+    cap = cv2.VideoCapture(video_path) #open video file with openCV
+    count = 0
+    while True:
+        ret, frame = cap.read()
+        if frame is None:
+            continue 
+        #reply += vlm(prompt, frame)
+        responseVideo, _ = vlm(prompt, frame)
+        #response = response.json()
+        #reply += response["choices"][0]["message"]["content"]
+        count += 1
+        #if count > 10:
+        if count > 2:
+            break
+    single_predicted_label = "imageResponse=" + responseImage + " videoResponse=" + responseVideo
     return {'prediction': single_predicted_label}
+
 
 print(predict('what do you see in the image'))

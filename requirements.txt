@@ -1,5 +1,5 @@
 notebook
-opencv-python
+opencv-python-headless
 requests
 pillow
 numpy
